@@ -112,8 +112,8 @@ function build_openssl() {
 
 	# It is better to remove and redownload the source since building make the source code directory dirty!
 	rm -rf openssl-3.0.4
-	test -f openssl-3.0.4.tar.gz || wget -q https://www.openssl.org/source/openssl-3.0.4.tar.gz
-	tar xzf openssl-3.0.4.tar.gz
+	test -f downloads/openssl-3.0.4.tar.gz || wget -q https://www.openssl.org/source/openssl-3.0.4.tar.gz -P downloads
+	tar xzf downloads/openssl-3.0.4.tar.gz
 	cd openssl-3.0.4
 
 	case $PLATFORM in
@@ -152,8 +152,8 @@ function build_libssh2() {
 	setup_variables $1
 
 	rm -rf libssh2-1.10.0
-	test -f libssh2-1.10.0.tar.gz || wget -q https://www.libssh2.org/download/libssh2-1.10.0.tar.gz
-	tar xzf libssh2-1.10.0.tar.gz
+	test -f downloads/libssh2-1.10.0.tar.gz || wget -q https://www.libssh2.org/download/libssh2-1.10.0.tar.gz -P downloads
+	tar xzf downloads/libssh2-1.10.0.tar.gz
 	cd libssh2-1.10.0
 
 	rm -rf build && mkdir build && cd build
@@ -175,8 +175,8 @@ function build_libgit2() {
     setup_variables $1
 
     rm -rf libgit2-$LIBGIT2_VERSION
-    test -f v$LIBGIT2_VERSION.zip || wget -q https://github.com/libgit2/libgit2/archive/refs/tags/v$LIBGIT2_VERSION.zip
-    ditto -V -x -k --sequesterRsrc --rsrc v$LIBGIT2_VERSION.zip ./ >/dev/null 2>/dev/null
+    test -f downloads/v$LIBGIT2_VERSION.zip || wget -q https://github.com/libgit2/libgit2/archive/refs/tags/v$LIBGIT2_VERSION.zip -P downloads
+    ditto -V -x -k --sequesterRsrc --rsrc downloads/v$LIBGIT2_VERSION.zip ./ >/dev/null 2>/dev/null
     cd libgit2-$LIBGIT2_VERSION
 
     rm -rf build && mkdir build && cd build
