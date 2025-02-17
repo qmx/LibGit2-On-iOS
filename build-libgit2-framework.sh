@@ -8,6 +8,9 @@
 export REPO_ROOT=`pwd`
 export PATH=$PATH:$REPO_ROOT/tools/bin
 
+# Version configurations
+LIBGIT2_VERSION="1.3.1"
+
 # List of platforms-architecture that we support
 # Note that there are limitations in `xcodebuild` command that disallows `maccatalyst` and `macosx` (native macOS lib) in the same xcframework.
 AVAILABLE_PLATFORMS=(iphoneos iphonesimulator iphonesimulator-arm64 maccatalyst maccatalyst-arm64) # macosx macosx-arm64
@@ -171,10 +174,10 @@ function build_libssh2() {
 function build_libgit2() {
     setup_variables $1
 
-    rm -rf libgit2-1.3.1
-    test -f v1.3.1.zip || wget -q https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.1.zip
-    ditto -V -x -k --sequesterRsrc --rsrc v1.3.1.zip ./ >/dev/null 2>/dev/null
-    cd libgit2-1.3.1
+    rm -rf libgit2-$LIBGIT2_VERSION
+    test -f v$LIBGIT2_VERSION.zip || wget -q https://github.com/libgit2/libgit2/archive/refs/tags/v$LIBGIT2_VERSION.zip
+    ditto -V -x -k --sequesterRsrc --rsrc v$LIBGIT2_VERSION.zip ./ >/dev/null 2>/dev/null
+    cd libgit2-$LIBGIT2_VERSION
 
     rm -rf build && mkdir build && cd build
 
