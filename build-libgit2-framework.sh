@@ -10,6 +10,9 @@ export PATH=$PATH:$REPO_ROOT/tools/bin
 
 # Version configurations
 LIBGIT2_VERSION="1.3.1"
+PCRE_VERSION="8.45"
+OPENSSL_VERSION="3.0.4"
+LIBSSH2_VERSION="1.10.0"
 
 # List of platforms-architecture that we support
 # Note that there are limitations in `xcodebuild` command that disallows `maccatalyst` and `macosx` (native macOS lib) in the same xcframework.
@@ -20,6 +23,9 @@ XCFRAMEWORK_PLATFORMS=(iphoneos iphonesimulator macosx)
 
 # List of platforms that need to be merged using lipo due to presence of multiple architectures
 LIPO_PLATFORMS=(iphonesimulator macosx)
+
+# Create downloads directory if it doesn't exist
+mkdir -p downloads
 
 ### Setup common environment variables to run CMake for a given platform
 ### Usage:      setup_variables PLATFORM
@@ -91,9 +97,9 @@ function setup_variables() {
 function build_libpcre() {
 	setup_variables $1
 
-	rm -rf pcre-8.45
-	git clone https://github.com/light-tech/PCRE.git pcre-8.45
-	cd pcre-8.45
+	rm -rf pcre-$PCRE_VERSION
+	git clone https://github.com/light-tech/PCRE.git pcre-$PCRE_VERSION
+	cd pcre-$PCRE_VERSION
 
 	rm -rf build && mkdir build && cd build
 	CMAKE_ARGS+=(-DPCRE_BUILD_PCRECPP=NO \
@@ -111,10 +117,10 @@ function build_openssl() {
 	setup_variables $1
 
 	# It is better to remove and redownload the source since building make the source code directory dirty!
-	rm -rf openssl-3.0.4
-	test -f downloads/openssl-3.0.4.tar.gz || wget -q https://www.openssl.org/source/openssl-3.0.4.tar.gz -P downloads
-	tar xzf downloads/openssl-3.0.4.tar.gz
-	cd openssl-3.0.4
+	rm -rf openssl-$OPENSSL_VERSION
+	test -f downloads/openssl-$OPENSSL_VERSION.tar.gz || wget -q https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz -P downloads
+	tar xzf downloads/openssl-$OPENSSL_VERSION.tar.gz
+	cd openssl-$OPENSSL_VERSION
 
 	case $PLATFORM in
 		"iphoneos")
@@ -151,10 +157,10 @@ function build_openssl() {
 function build_libssh2() {
 	setup_variables $1
 
-	rm -rf libssh2-1.10.0
-	test -f downloads/libssh2-1.10.0.tar.gz || wget -q https://www.libssh2.org/download/libssh2-1.10.0.tar.gz -P downloads
-	tar xzf downloads/libssh2-1.10.0.tar.gz
-	cd libssh2-1.10.0
+	rm -rf libssh2-$LIBSSH2_VERSION
+	test -f downloads/libssh2-$LIBSSH2_VERSION.tar.gz || wget -q https://www.libssh2.org/download/libssh2-$LIBSSH2_VERSION.tar.gz -P downloads
+	tar xzf downloads/libssh2-$LIBSSH2_VERSION.tar.gz
+	cd libssh2-$LIBSSH2_VERSION
 
 	rm -rf build && mkdir build && cd build
 
