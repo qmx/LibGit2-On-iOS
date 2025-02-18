@@ -98,12 +98,10 @@ function setup_variables() {
 function build_libpcre() {
 	setup_variables $1
 
-	rm -rf pcre-$PCRE_VERSION
 	if [ ! -d "downloads/pcre-$PCRE_VERSION" ]; then
 		git clone https://github.com/light-tech/PCRE.git downloads/pcre-$PCRE_VERSION
 	fi
 
-	rm -rf build/$PLATFORM/pcre-$PCRE_VERSION
 	mkdir -p build/$PLATFORM/pcre-$PCRE_VERSION
 	cd build/$PLATFORM/pcre-$PCRE_VERSION
 
@@ -124,7 +122,6 @@ function build_openssl() {
 	# It is better to remove and redownload the source since building make the source code directory dirty!
 	test -f downloads/openssl-$OPENSSL_VERSION.tar.gz || wget -q https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz -P downloads
 
-	rm -rf build/$PLATFORM/openssl-$OPENSSL_VERSION
 	mkdir -p build/$PLATFORM/openssl-$OPENSSL_VERSION
 	tar xzf downloads/openssl-$OPENSSL_VERSION.tar.gz -C build/$PLATFORM/openssl-$OPENSSL_VERSION
 	cd build/$PLATFORM/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION
@@ -164,7 +161,6 @@ function build_openssl() {
 function build_libssh2() {
 	setup_variables $1
 
-	rm -rf build/$PLATFORM/libssh2-$LIBSSH2_VERSION
 	mkdir -p build/$PLATFORM/libssh2-$LIBSSH2_VERSION
 	tar xzf downloads/libssh2-$LIBSSH2_VERSION.tar.gz -C build/$PLATFORM/libssh2-$LIBSSH2_VERSION
 	cd build/$PLATFORM/libssh2-$LIBSSH2_VERSION/libssh2-$LIBSSH2_VERSION
@@ -187,7 +183,6 @@ function build_libgit2() {
 
     test -f downloads/v$LIBGIT2_VERSION.zip || wget -q https://github.com/libgit2/libgit2/archive/refs/tags/v$LIBGIT2_VERSION.zip -P downloads
 
-	rm -rf build/$PLATFORM/libgit2-$LIBGIT2_VERSION
 	mkdir -p build/$PLATFORM/libgit2-$LIBGIT2_VERSION
 	cd build/$PLATFORM/libgit2-$LIBGIT2_VERSION
 
