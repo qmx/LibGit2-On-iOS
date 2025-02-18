@@ -1,3 +1,4 @@
+#!/bin/bash
 # Build libgit2 XCFramework
 #
 # This script assumes that
@@ -98,18 +99,22 @@ function build_libpcre() {
 	setup_variables $1
 
 	rm -rf pcre-$PCRE_VERSION
-	git clone https://github.com/light-tech/PCRE.git pcre-$PCRE_VERSION
-	cd pcre-$PCRE_VERSION
+	if [ ! -d "downloads/pcre-$PCRE_VERSION" ]; then
+		git clone https://github.com/light-tech/PCRE.git downloads/pcre-$PCRE_VERSION
+	fi
 
-	rm -rf build && mkdir build && cd build
+	rm -rf build/$PLATFORM/pcre-$PCRE_VERSION
+	mkdir -p build/$PLATFORM/pcre-$PCRE_VERSION
+	cd build/$PLATFORM/pcre-$PCRE_VERSION
+
 	CMAKE_ARGS+=(-DPCRE_BUILD_PCRECPP=NO \
 		-DPCRE_BUILD_PCREGREP=NO \
 		-DPCRE_BUILD_TESTS=NO \
 		-DPCRE_SUPPORT_LIBBZ2=NO)
 
-	cmake "${CMAKE_ARGS[@]}" .. >/dev/null 2>/dev/null
+	cmake "${CMAKE_ARGS[@]}" $REPO_ROOT/downloads/pcre-$PCRE_VERSION >/dev/null 2>/dev/null
 
-	cmake --build . --target install >/dev/null 2>/dev/null
+	cmake --build . --target install
 }
 
 ### Build openssl for a given platform
@@ -117,10 +122,12 @@ function build_openssl() {
 	setup_variables $1
 
 	# It is better to remove and redownload the source since building make the source code directory dirty!
-	rm -rf openssl-$OPENSSL_VERSION
 	test -f downloads/openssl-$OPENSSL_VERSION.tar.gz || wget -q https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz -P downloads
-	tar xzf downloads/openssl-$OPENSSL_VERSION.tar.gz
-	cd openssl-$OPENSSL_VERSION
+
+	rm -rf build/$PLATFORM/openssl-$OPENSSL_VERSION
+	mkdir -p build/$PLATFORM/openssl-$OPENSSL_VERSION
+	tar xzf downloads/openssl-$OPENSSL_VERSION.tar.gz -C build/$PLATFORM/openssl-$OPENSSL_VERSION
+	cd build/$PLATFORM/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION
 
 	case $PLATFORM in
 		"iphoneos")
@@ -148,7 +155,7 @@ function build_openssl() {
 		--openssldir=$REPO_ROOT/install/$PLATFORM \
 		$TARGET_OS no-shared no-dso no-hw no-engine >/dev/null 2>/dev/null
 
-	make >/dev/null 2>/dev/null
+	make 
 	make install_sw install_ssldirs >/dev/null 2>/dev/null
 	export -n CFLAGS
 }
@@ -157,21 +164,19 @@ function build_openssl() {
 function build_libssh2() {
 	setup_variables $1
 
-	rm -rf libssh2-$LIBSSH2_VERSION
-	test -f downloads/libssh2-$LIBSSH2_VERSION.tar.gz || wget -q https://www.libssh2.org/download/libssh2-$LIBSSH2_VERSION.tar.gz -P downloads
-	tar xzf downloads/libssh2-$LIBSSH2_VERSION.tar.gz
-	cd libssh2-$LIBSSH2_VERSION
-
-	rm -rf build && mkdir build && cd build
+	rm -rf build/$PLATFORM/libssh2-$LIBSSH2_VERSION
+	mkdir -p build/$PLATFORM/libssh2-$LIBSSH2_VERSION
+	tar xzf downloads/libssh2-$LIBSSH2_VERSION.tar.gz -C build/$PLATFORM/libssh2-$LIBSSH2_VERSION
+	cd build/$PLATFORM/libssh2-$LIBSSH2_VERSION/libssh2-$LIBSSH2_VERSION
 
 	CMAKE_ARGS+=(-DCRYPTO_BACKEND=OpenSSL \
 		-DOPENSSL_ROOT_DIR=$REPO_ROOT/install/$PLATFORM \
 		-DBUILD_EXAMPLES=OFF \
 		-DBUILD_TESTING=OFF)
 
-	cmake "${CMAKE_ARGS[@]}" .. >/dev/null 2>/dev/null
+	cmake "${CMAKE_ARGS[@]}" $REPO_ROOT/build/$PLATFORM/libssh2-$LIBSSH2_VERSION/libssh2-$LIBSSH2_VERSION >/dev/null 2>/dev/null
 
-	cmake --build . --target install >/dev/null 2>/dev/null
+	cmake --build . --target install
 }
 
 ### Build libgit2 for a single platform (given as the first and only argument)
@@ -180,12 +185,14 @@ function build_libssh2() {
 function build_libgit2() {
     setup_variables $1
 
-    rm -rf libgit2-$LIBGIT2_VERSION
     test -f downloads/v$LIBGIT2_VERSION.zip || wget -q https://github.com/libgit2/libgit2/archive/refs/tags/v$LIBGIT2_VERSION.zip -P downloads
-    ditto -V -x -k --sequesterRsrc --rsrc downloads/v$LIBGIT2_VERSION.zip ./ >/dev/null 2>/dev/null
-    cd libgit2-$LIBGIT2_VERSION
 
-    rm -rf build && mkdir build && cd build
+	rm -rf build/$PLATFORM/libgit2-$LIBGIT2_VERSION
+	mkdir -p build/$PLATFORM/libgit2-$LIBGIT2_VERSION
+	cd build/$PLATFORM/libgit2-$LIBGIT2_VERSION
+
+	ditto -V -x -k --sequesterRsrc --rsrc $REPO_ROOT/downloads/v$LIBGIT2_VERSION.zip ./ >/dev/null 2>/dev/null
+	rm -rf build && mkdir build && cd build
 
     CMAKE_ARGS+=(-DBUILD_CLAR=NO)
 
@@ -197,9 +204,9 @@ function build_libgit2() {
         -DLIBSSH2_FOUND=YES \
         -DLIBSSH2_INCLUDE_DIRS=$REPO_ROOT/install/$PLATFORM/include)
 
-    cmake "${CMAKE_ARGS[@]}" .. #>/dev/null 2>/dev/null
+    cmake "${CMAKE_ARGS[@]}" ../libgit2-$LIBGIT2_VERSION >/dev/null 2>/dev/null
 
-    cmake --build . --target install #>/dev/null 2>/dev/null
+    cmake --build . --target install
 }
 
 ### Create xcframework for a given library
@@ -230,7 +237,6 @@ function copy_modulemap() {
 }
 
 ### Build libgit2 and Clibgit2 frameworks for all available platforms
-
 for p in ${AVAILABLE_PLATFORMS[@]}; do
 	echo "Build libraries for $p"
 	build_libpcre $p
