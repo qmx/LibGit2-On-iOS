@@ -17,13 +17,13 @@ LIBSSH2_VERSION="1.10.0"
 
 # List of platforms-architecture that we support
 # Note that there are limitations in `xcodebuild` command that disallows `maccatalyst` and `macosx` (native macOS lib) in the same xcframework.
-AVAILABLE_PLATFORMS=(iphoneos iphonesimulator iphonesimulator-arm64 macosx-arm64) # maccatalyst maccatalyst-arm64
+AVAILABLE_PLATFORMS=(iphoneos iphonesimulator iphonesimulator-arm64 maccatalyst maccatalyst-arm64) # maccatalyst maccatalyst-arm64
 
 # List of frameworks included in the XCFramework (= AVAILABLE_PLATFORMS without architecture specifications)
-XCFRAMEWORK_PLATFORMS=(iphoneos iphonesimulator macosx)
+XCFRAMEWORK_PLATFORMS=(iphoneos iphonesimulator maccatalyst)
 
 # List of platforms that need to be merged using lipo due to presence of multiple architectures
-LIPO_PLATFORMS=(iphonesimulator macosx)
+LIPO_PLATFORMS=(iphonesimulator maccatalyst)
 
 # Create downloads directory if it doesn't exist
 mkdir -p downloads
