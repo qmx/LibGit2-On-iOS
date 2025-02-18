@@ -232,6 +232,7 @@ function copy_modulemap() {
 }
 
 ### Build libgit2 and Clibgit2 frameworks for all available platforms
+
 for p in ${AVAILABLE_PLATFORMS[@]}; do
 	echo "Build libraries for $p"
 	build_libpcre $p
