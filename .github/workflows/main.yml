@@ -21,8 +21,9 @@ jobs:
             libgit2.xcframework.zip
       - name: Update Package.swift
         run: |
+          CHECKSUM=$(swift package compute-checksum Clibgit2.xcframework.zip)
           sed -i '' "s|url: \".*Clibgit2.xcframework.zip\"|url: \"https://github.com/$GITHUB_REPOSITORY/releases/download/build-${{ github.sha }}/Clibgit2.xcframework.zip\"|" Package.swift
-          swift package compute-checksum Clibgit2.xcframework.zip --update-package-manifest
+          sed -i '' "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|" Package.swift
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add Package.swift
