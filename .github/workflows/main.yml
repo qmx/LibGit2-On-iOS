@@ -4,18 +4,28 @@ on: [push]
 jobs:
   build-libgit2-xcframework:
     runs-on: macos-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - run: ./build-tools.sh
       - run: ./build-libgit2-framework.sh
-      - run: swift package compute-checksum libgit2.xcframework.zip
-      - run: swift package compute-checksum Clibgit2.xcframework.zip
-      - uses: actions/upload-artifact@v4
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          name: libgit2.xcframework
-          path: libgit2.xcframework.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Clibgit2.xcframework
-          path: Clibgit2.xcframework.zip
+          tag_name: build-${{ github.sha }}
+          files: |
+            Clibgit2.xcframework.zip
+            libgit2.xcframework.zip
+      - name: Update Package.swift
+        run: |
+          sed -i '' "s|url: \".*Clibgit2.xcframework.zip\"|url: \"https://github.com/$GITHUB_REPOSITORY/releases/download/build-${{ github.sha }}/Clibgit2.xcframework.zip\"|" Package.swift
+          swift package compute-checksum Clibgit2.xcframework.zip --update-package-manifest
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Package.swift
+          git commit -m "Update Package.swift with new checksum"
+          git push
 
